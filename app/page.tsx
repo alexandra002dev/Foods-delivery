@@ -17,11 +17,7 @@ const Home = async () => {
     },
     take: 10,
     include: {
-      restaurant: {
-        select: {
-          name: true,
-        },
-      },
+      restaurant: true,
     },
   });
   return (
