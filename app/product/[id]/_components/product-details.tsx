@@ -41,7 +41,7 @@ const ProductDetails = ({
       return currentState - 1;
     });
   return (
-    <div className="space-y-2 bg-white p-5">
+    <div className="relative z-50 mt-[-1.5rem] space-y-2 rounded-tl-3xl rounded-tr-3xl bg-white p-5">
       {/* RESTAURANT */}
       <div className="flex items-center gap-[0.375rem]">
         <div className="relative h-6 w-6">
