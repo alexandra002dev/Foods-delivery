@@ -1,21 +1,16 @@
 "use client";
 import DiscountBadge from "@/app/_components/discount-badge";
 import ProductsList from "@/app/_components/products-list";
-import { Button } from "@/app/_components/ui/button";
+import Quantity from "@/app/_components/quantity";
 import { Card } from "@/app/_components/ui/card";
 import {
   calculateProductTotalPrice,
   formatCurrency,
 } from "@/app/_helpers/price";
 import { Prisma } from "@prisma/client";
-import {
-  BikeIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  TimerIcon,
-} from "lucide-react";
+import { BikeIcon, TimerIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+
 interface ProductInfoProps {
   product: Prisma.ProductGetPayload<{
     include: {
@@ -32,14 +27,6 @@ const ProductDetails = ({
   product,
   complementaryProducts,
 }: ProductInfoProps) => {
-  const [quantity, setQuantity] = useState(1);
-  const handleIncreaseQuantity = () =>
-    setQuantity((currentState) => currentState + 1);
-  const handleDescreaseQuantity = () =>
-    setQuantity((currentState) => {
-      if (currentState === 1) return 1;
-      return currentState - 1;
-    });
   return (
     <div className="relative z-50 mt-[-1.5rem] space-y-2 rounded-tl-3xl rounded-tr-3xl bg-white p-5">
       {/* RESTAURANT */}
@@ -76,20 +63,7 @@ const ProductDetails = ({
           </p>
         </div>
         {/* QUANTIDADE */}
-        <div className="flex items-center gap-3 text-center">
-          <Button
-            variant={"ghost"}
-            size="icon"
-            className=" border border-solid"
-            onClick={handleDescreaseQuantity}
-          >
-            <ChevronLeftIcon />
-          </Button>
-          <span className="w-4">{quantity}</span>
-          <Button size="icon" onClick={handleIncreaseQuantity}>
-            <ChevronRightIcon />
-          </Button>
-        </div>
+        <Quantity />
       </div>
       {/* DADOS DA ENTREGA */}
       <Card className="flex justify-around py-3">
