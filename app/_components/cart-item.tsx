@@ -9,7 +9,8 @@ interface ProductCartProps {
   productCart: CartProduct;
 }
 const CartItem = ({ productCart }: ProductCartProps) => {
-  const { removeProductcart } = useContext(CartProductContext);
+  const { removeProductcart, descreaseQuantity, increaseQuantity } =
+    useContext(CartProductContext);
   return (
     <div className="mb-3 flex items-center justify-between  space-x-6">
       {/* IMAGEM  */}
@@ -27,11 +28,13 @@ const CartItem = ({ productCart }: ProductCartProps) => {
         {/* PREÇO ORIGINAL E DESCONTO  */}
         <div className="flex items-center gap-2">
           <h4 className="text-sm font-semibold">
-            {formatCurrency(calculateProductTotalPrice(productCart))}
+            {formatCurrency(
+              calculateProductTotalPrice(productCart) * productCart.quantity,
+            )}
           </h4>
           {Number(productCart.discountPercentage) > 0 && (
             <span className=" text-sm text-muted-foreground line-through">
-              {formatCurrency(Number(productCart.price))}
+              {formatCurrency(Number(productCart.price) * productCart.quantity)}
             </span>
           )}
         </div>
@@ -42,11 +45,16 @@ const CartItem = ({ productCart }: ProductCartProps) => {
             variant={"ghost"}
             size="icon"
             className=" h-8 w-8 border border-solid"
+            onClick={() => descreaseQuantity(productCart.id)}
           >
             <ChevronLeftIcon size={18} />
           </Button>
           <span className="w-2 text-sm">{productCart.quantity}</span>
-          <Button size="icon" className=" h-8 w-8">
+          <Button
+            size="icon"
+            className=" h-8 w-8"
+            onClick={() => increaseQuantity(productCart.id)}
+          >
             <ChevronRightIcon size={18} />
           </Button>
         </div>
