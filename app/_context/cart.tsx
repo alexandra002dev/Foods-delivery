@@ -17,6 +17,7 @@ interface ICartContext {
   subtotalPrice: number;
   totalDiscount: number;
   totalPrice: number;
+  totalQuantity: number;
   /* eslint-disable no-unused-vars */
 
   removeProductcart: (Product: CartProduct) => void;
@@ -29,6 +30,7 @@ export const CartProductContext = createContext<ICartContext>({
   subtotalPrice: 0,
   totalDiscount: 0,
   totalPrice: 0,
+  totalQuantity: 0,
   addProductToCart: () => {},
   removeProductcart: () => {},
   descreaseQuantity: () => {},
@@ -37,7 +39,10 @@ export const CartProductContext = createContext<ICartContext>({
 
 export const CartProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<CartProduct[]>([]);
-
+  //* TOTAL QUANTIDADE
+  const totalQuantity = products.reduce((acc, product) => {
+    return acc + product.quantity;
+  }, 0);
   //*SUBTOTAL
   const subtotalPrice = useMemo(() => {
     return products.reduce(
@@ -154,6 +159,7 @@ export const CartProductProvider = ({ children }: { children: ReactNode }) => {
         subtotalPrice,
         totalPrice,
         totalDiscount,
+        totalQuantity,
       }}
     >
       {children}
