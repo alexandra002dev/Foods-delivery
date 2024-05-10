@@ -28,11 +28,11 @@ const ProductItem = ({ product }: ProductItemProps) => {
             fill
             className="rounded-lg object-cover shadow-md"
           />
-          {product.discountPercentage > 0 && (
+          {Number(product.discountPercentage) > 0 && (
             <div className="absolute left-2 top-2 flex items-center gap-[2px] rounded-full bg-primary px-2 py-[2px] text-sm text-white">
               <ArrowDownIcon size={12} />
               <span className=" flex text-xs font-semibold">
-                {product.discountPercentage}%
+                {Number(product.discountPercentage)}%
               </span>
             </div>
           )}
@@ -42,7 +42,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
           <h2 className="font-semibold">
             {formatCurrency(calculateProductTotalPrice(product))}
           </h2>
-          {product.discountPercentage > 0 && (
+          {Number(product.discountPercentage) > 0 && (
             <span className=" text-xs text-muted-foreground line-through">
               {formatCurrency(Number(product.price))}
             </span>
