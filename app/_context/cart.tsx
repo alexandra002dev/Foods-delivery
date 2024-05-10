@@ -1,30 +1,122 @@
 "use client";
-import { Product, Restaurant } from "@prisma/client";
-import { ReactNode, createContext, useState } from "react";
+import { Prisma, Product } from "@prisma/client";
+import { ReactNode, createContext, useMemo, useState } from "react";
+import { calculateProductTotalPrice } from "../_helpers/price";
 
-export interface CartProduct extends Product {
+export interface CartProduct
+  extends Prisma.ProductGetPayload<{
+    include: {
+      restaurant: true;
+    };
+  }> {
   quantity: number;
-  restaurant: Pick<Restaurant, "deliveryFee">;
 }
 
 interface ICartContext {
   products: CartProduct[];
+  subtotalPrice: number;
+  totalDiscount: number;
+  totalPrice: number;
   /* eslint-disable no-unused-vars */
-  removeProductcart: (Product: Product) => void;
 
-  addProductToCart: (product: Product, quantity: number) => void;
+  removeProductcart: (Product: CartProduct) => void;
+  addProductToCart: (product: CartProduct, quantity: number) => void;
+  descreaseQuantity: (productId: string) => void;
+  increaseQuantity: (productId: string) => void;
 }
 export const CartProductContext = createContext<ICartContext>({
   products: [],
+  subtotalPrice: 0,
+  totalDiscount: 0,
+  totalPrice: 0,
   addProductToCart: () => {},
   removeProductcart: () => {},
+  descreaseQuantity: () => {},
+  increaseQuantity: () => {},
 });
 
 export const CartProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<CartProduct[]>([]);
 
+  //*SUBTOTAL
+  const subtotalPrice = useMemo(() => {
+    return products.reduce(
+      (acc, product) => acc + Number(product.price) * product.quantity,
+      0,
+    );
+  }, [products]);
+
+  //*TOTAL
+  const totalPrice = useMemo(() => {
+    return products.reduce(
+      (acc, product) =>
+        acc + calculateProductTotalPrice(product) * product.quantity,
+      0,
+    );
+  }, [products]);
+
+  //*DESCONTO
+  const totalDiscount = subtotalPrice - totalPrice;
+
+  //*INCREMENTAR QUANTIDADE
+  const increaseQuantity = (productId: string) => {
+    //VERIFICAR SE O PRODUTO JÁ ESTÁ NO CARRINHO
+    const isProductAlreadyOnCarts = products.some(
+      (cartProducts) => cartProducts.id === productId,
+    );
+
+    // SE ELE ESTIVER, AUMENTAR A SUA QUANTIDADE
+    if (isProductAlreadyOnCarts) {
+      const updatedProducts = products.map((cartProduct) =>
+        cartProduct.id === productId
+          ? {
+              ...cartProduct,
+              quantity: cartProduct.quantity + 1,
+            }
+          : cartProduct,
+      );
+      setProducts(updatedProducts);
+      return;
+    }
+  };
+
+  //*DECREMENTAR QUANTIDADE
+  const descreaseQuantity = (productId: string) => {
+    //VERIFICAR SE O PRODUTO JÁ ESTÁ NO CARRINHO
+    const isProductAlreadyOnCarts = products.some(
+      (cartProducts) => cartProducts.id === productId,
+    );
+
+    // SE ELE ESTIVER, AUMENTAR A SUA QUANTIDADE
+    if (isProductAlreadyOnCarts) {
+      const updatedProducts = products.map((cartProduct) =>
+        cartProduct.id === productId
+          ? {
+              ...cartProduct,
+              quantity: cartProduct.quantity > 1 ? cartProduct.quantity - 1 : 1,
+            }
+          : cartProduct,
+      );
+      setProducts(updatedProducts);
+      return;
+    }
+  };
+
   //* FUNÇÃO DE ADD AO CARRINHO
-  const addProductToCart = (product: Product, quantity: number) => {
+  const addProductToCart = (product: CartProduct, quantity: number) => {
+    //VERIFICAR SE HÁ ALGUM PRODUTO DE OUTRO RESTAURANT NO CARRINHO
+    const hasDifferentRestaurantProduct = products.some(
+      (cartProduct) => cartProduct.restaurantId !== product.restaurantId,
+    );
+    if (hasDifferentRestaurantProduct) {
+      return setProducts([
+        {
+          ...product,
+          quantity: quantity,
+        },
+      ]);
+      return;
+    }
     //VERIFICAR SE O PRODUTO JÁ ESTÁ NO CARRINHO
     const isProductAlreadyOnCarts = products.some(
       (cartProducts) => cartProducts.id === product.id,
@@ -53,7 +145,16 @@ export const CartProductProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <CartProductContext.Provider
-      value={{ products, addProductToCart, removeProductcart }}
+      value={{
+        products,
+        addProductToCart,
+        removeProductcart,
+        descreaseQuantity,
+        increaseQuantity,
+        subtotalPrice,
+        totalPrice,
+        totalDiscount,
+      }}
     >
       {children}
     </CartProductContext.Provider>
