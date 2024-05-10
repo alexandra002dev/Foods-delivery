@@ -1,6 +1,7 @@
 import Header from "@/app/_components/header";
 import ProductItem from "@/app/_components/product-item";
 import { db } from "@/app/_lib/prisma";
+import { notFound } from "next/navigation";
 
 interface CategoryPageProps {
   params: {
@@ -24,14 +25,18 @@ const CategoryPage = async ({ params: { id } }: CategoryPageProps) => {
       },
     },
   });
+
+  if (!category) {
+    return notFound();
+  }
   return (
     <div className="px-5 ">
       <Header />
       <h2 className="mb-2 text-xl font-bold">{category?.name}</h2>
       <div className="grid grid-cols-2 gap-2">
-        {category?.products.map((products) => (
-          <div key={products.id}>
-            <ProductItem product={products} />
+        {category?.products.map((product) => (
+          <div key={product.id}>
+            <ProductItem product={product} />
           </div>
         ))}
       </div>
