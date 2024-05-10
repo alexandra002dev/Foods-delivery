@@ -23,7 +23,7 @@ const RecommendedProductsPage = async () => {
   return (
     <>
       <Header />
-      <div className="px-5 py-6">
+      <div className="py-6 pl-6">
         <h2 className="mb-6 text-lg font-semibold">Pedidos Recomendados</h2>
         <div className="grid grid-cols-2 gap-6">
           {products.map((product) => (
