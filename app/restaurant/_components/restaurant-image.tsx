@@ -10,7 +10,9 @@ interface RestaurantImageProps {
 }
 const RestaurantImage = ({ restaurant }: RestaurantImageProps) => {
   const router = useRouter();
-  const handleBack = () => router.push("/");
+  const handleBack = () => {
+    router.back(); // Isso leva de volta para a última página acessada.
+  };
   return (
     <div className="relative h-[200px] w-full">
       <Image

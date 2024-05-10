@@ -10,7 +10,9 @@ interface ProductImageProps {
 }
 const ProductImage = ({ product }: ProductImageProps) => {
   const router = useRouter();
-  const handleBack = () => router.push("/");
+  const handleBack = () => {
+    router.back();
+  };
   return (
     <div className="relative h-[360px] w-full">
       <Image
