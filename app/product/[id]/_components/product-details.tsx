@@ -178,7 +178,7 @@ const ProductDetails = ({
       </div>
       <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
         <SheetContent className="w-[90vw]">
-          <Cart />
+          <Cart setIsCartOpen={setIsCartOpen} />
         </SheetContent>
       </Sheet>
 

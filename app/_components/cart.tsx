@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { CartProductContext } from "../_context/cart";
 import CartItem from "./cart-item";
 import { Card, CardContent } from "./ui/card";
@@ -15,12 +15,14 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { CheckCircle2 } from "lucide-react";
-
-const Cart = () => {
+interface CartProps {
+  setIsCartOpen: Dispatch<SetStateAction<boolean>>;
+}
+const Cart = ({ setIsCartOpen }: CartProps) => {
   const [isDialog, setIsDialog] = useState(false);
   const { data } = useSession();
 
-  const { products, subtotalPrice, totalPrice, totalDiscount } =
+  const { products, subtotalPrice, totalPrice, totalDiscount, clearCart } =
     useContext(CartProductContext);
   const handleFinishOrderClick = async () => {
     if (!data?.user) return;
@@ -41,6 +43,8 @@ const Cart = () => {
       },
     });
     setIsDialog(false);
+    clearCart();
+    setIsCartOpen(false);
   };
 
   return (
