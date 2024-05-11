@@ -1,13 +1,47 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { CartProductContext } from "../_context/cart";
 import CartItem from "./cart-item";
 import { Card, CardContent } from "./ui/card";
 import { formatCurrency } from "../_helpers/price";
 import { Button } from "./ui/button";
+import { createOrder } from "../_actions/order";
+import { OrderStatus } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { CheckCircle2 } from "lucide-react";
 
 const Cart = () => {
+  const [isDialog, setIsDialog] = useState(false);
+  const { data } = useSession();
+
   const { products, subtotalPrice, totalPrice, totalDiscount } =
     useContext(CartProductContext);
+  const handleFinishOrderClick = async () => {
+    if (!data?.user) return;
+    await createOrder({
+      subtotalPrice,
+      totalDiscounts: totalDiscount,
+      totalPrice,
+      deliveryFree: products[0].restaurant.deliveryFee,
+      DeliveryTime: products[0].restaurant.deliveryTimeMinutes,
+      restaurant: {
+        connect: { id: products[0].restaurant.id },
+      },
+      status: OrderStatus.PREPARING,
+      user: {
+        connect: {
+          email: data?.user?.email || "",
+        },
+      },
+    });
+    setIsDialog(false);
+  };
 
   return (
     <>
@@ -61,7 +95,9 @@ const Cart = () => {
                 </div>
               </CardContent>
             </Card>
-            <Button className="mt-5 w-full">Finalizar Pedido</Button>
+            <Button className="mt-5 w-full" onClick={() => setIsDialog(true)}>
+              Finalizar Pedido
+            </Button>
           </div>
         </div>
       ) : (
@@ -71,6 +107,20 @@ const Cart = () => {
           </span>
         </div>
       )}
+      <Dialog open={isDialog}>
+        <DialogContent className="h-72 w-60 ">
+          <DialogHeader className="flex items-center  justify-center text-center">
+            <DialogTitle>
+              <CheckCircle2 size={72} className="text-primary" />
+            </DialogTitle>
+            <h2 className="text-lg font-semibold">Pedido Efetuado!</h2>
+            <DialogDescription>
+              Seu pedido foi realizado com sucesso.
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={handleFinishOrderClick}>Confirmar</Button>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
