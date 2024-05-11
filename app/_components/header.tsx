@@ -25,7 +25,6 @@ import { Separator } from "./ui/separator";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data } = useSession();
-  console.log(data?.user.email);
 
   const handleSignOutClick = () => signOut();
   const handleSignInClick = () => signIn();
@@ -76,20 +75,24 @@ const Header = () => {
           <div className=" py-6 ">
             <Separator />
           </div>
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 rounded-full "
-          >
-            <HomeIcon size={16} /> Início
-          </Button>
+          <Link href={"/"}>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 rounded-full "
+            >
+              <HomeIcon size={16} /> Início
+            </Button>
+          </Link>
           {data?.user && (
             <>
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-3 rounded-full "
-              >
-                <ScrollTextIcon size={16} /> Meus Pedidos
-              </Button>
+              <Link href={"/my-orders"}>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-3 rounded-full "
+                >
+                  <ScrollTextIcon size={16} /> Meus Pedidos
+                </Button>
+              </Link>
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-3 rounded-full "

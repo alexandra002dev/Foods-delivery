@@ -14,18 +14,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 interface CartProps {
   setIsCartOpen: Dispatch<SetStateAction<boolean>>;
 }
 const Cart = ({ setIsCartOpen }: CartProps) => {
   const [isDialog, setIsDialog] = useState(false);
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const { data } = useSession();
 
   const { products, subtotalPrice, totalPrice, totalDiscount, clearCart } =
     useContext(CartProductContext);
   const handleFinishOrderClick = async () => {
     if (!data?.user) return;
+    setIsSubmitLoading(true);
     await createOrder({
       subtotalPrice,
       totalDiscounts: totalDiscount,
@@ -35,13 +37,22 @@ const Cart = ({ setIsCartOpen }: CartProps) => {
       restaurant: {
         connect: { id: products[0].restaurant.id },
       },
-      status: OrderStatus.PREPARING,
+      status: OrderStatus.CONFIRMED,
       user: {
         connect: {
           email: data?.user?.email || "",
         },
       },
+      products: {
+        createMany: {
+          data: products.map((product) => ({
+            productId: product.id,
+            quantity: product.quantity,
+          })),
+        },
+      },
     });
+
     setIsDialog(false);
     clearCart();
     setIsCartOpen(false);
@@ -122,7 +133,12 @@ const Cart = ({ setIsCartOpen }: CartProps) => {
               Seu pedido foi realizado com sucesso.
             </DialogDescription>
           </DialogHeader>
-          <Button onClick={handleFinishOrderClick}>Confirmar</Button>
+          <Button onClick={handleFinishOrderClick} disabled={isSubmitLoading}>
+            {isSubmitLoading && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Confirmar
+          </Button>
         </DialogContent>
       </Dialog>
     </>
