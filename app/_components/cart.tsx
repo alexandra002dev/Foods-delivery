@@ -15,10 +15,13 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 interface CartProps {
   setIsCartOpen: Dispatch<SetStateAction<boolean>>;
 }
 const Cart = ({ setIsCartOpen }: CartProps) => {
+  const router = useRouter();
   const [isDialog, setIsDialog] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const { data } = useSession();
@@ -52,7 +55,13 @@ const Cart = ({ setIsCartOpen }: CartProps) => {
         },
       },
     });
-
+    toast("Pedido finalizado com sucesso!", {
+      description: "Você pode acompanhá-lo na tela dos seus pedidos.",
+      action: {
+        label: "Meus Pedidos",
+        onClick: () => router.push("/my-orders"),
+      },
+    });
     setIsDialog(false);
     clearCart();
     setIsCartOpen(false);

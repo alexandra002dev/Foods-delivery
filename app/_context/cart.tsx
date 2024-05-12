@@ -110,6 +110,19 @@ export const CartProductProvider = ({ children }: { children: ReactNode }) => {
   };
   //* FUNÇÃO DE ADICIONAR AO CARRINHO
   const addProductToCart: ICartContext["addProductToCart"] = ({ product }) => {
+    //VERIFICAR SE HÁ ALGUM PRODUTO DE OUTRO RESTAURANTE NO CARRINHO
+    const hasDifferentRestaurantProduct = products.some(
+      (cartProduct) => cartProduct.restaurantId !== product.restaurantId,
+    );
+    if (hasDifferentRestaurantProduct) {
+      return setProducts([
+        {
+          ...product,
+          quantity: product.quantity,
+        },
+      ]);
+      return;
+    }
     // VERIFICAR SE O PRODUTO JÁ ESTÁ NO CARRINHO
     const isProductAlreadyOnCart = products.some(
       (cartProduct) => cartProduct.id === product.id,
