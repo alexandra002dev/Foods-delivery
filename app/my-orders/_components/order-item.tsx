@@ -3,11 +3,14 @@ import { AvatarImage } from "@/app/_components/ui/avatar";
 import { Button } from "@/app/_components/ui/button";
 import { Card, CardContent } from "@/app/_components/ui/card";
 import { Separator } from "@/app/_components/ui/separator";
+import { CartProductContext } from "@/app/_context/cart";
 import { formatCurrency } from "@/app/_helpers/price";
 import { OrderStatus, Prisma } from "@prisma/client";
 import { Avatar } from "@radix-ui/react-avatar";
 import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useContext } from "react";
 
 interface OrderItemProps {
   orders: Prisma.OrderGetPayload<{
@@ -36,6 +39,21 @@ const getOrderStatusLabel = (status: OrderStatus) => {
   }
 };
 const OrderItem = ({ orders }: OrderItemProps) => {
+  const { addProductToCart } = useContext(CartProductContext);
+  const router = useRouter();
+
+  const handleRedoOrder = () => {
+    for (const orderProduct of orders.products) {
+      addProductToCart({
+        product: {
+          ...orderProduct.product,
+          restaurant: orders.restaurant,
+          quantity: orderProduct.quantity,
+        },
+      });
+    }
+    router.push(`/restaurant/${orders.restaurantId}`);
+  };
   return (
     <Card>
       <CardContent className="space-y-3 p-5">
@@ -88,7 +106,15 @@ const OrderItem = ({ orders }: OrderItemProps) => {
               Number(orders.totalPrice) + Number(orders.restaurant.deliveryFee),
             )}
           </span>
-          <h2 className=" font-semibold text-primary">Adicionar à Sacola</h2>
+          <Button
+            disabled={orders.status !== "COMPLETED"}
+            variant="ghost"
+            size="sm"
+            className="text-xs text-primary"
+            onClick={handleRedoOrder}
+          >
+            Refazer pedido
+          </Button>
         </div>
       </CardContent>
     </Card>

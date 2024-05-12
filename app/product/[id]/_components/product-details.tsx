@@ -54,7 +54,7 @@ const ProductDetails = ({
   const [quantity, setQuantity] = useState(1);
   const { addProductToCart, products } = useContext(CartProductContext);
   const addToCart = () => {
-    addProductToCart({ ...product, quantity }, quantity);
+    addProductToCart({ product: { ...product, quantity } });
     setIsCartOpen(true);
   };
   const handleAddToCartClick = () => {

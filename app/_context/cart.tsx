@@ -20,8 +20,8 @@ interface ICartContext {
   totalQuantity: number;
   /* eslint-disable no-unused-vars */
 
-  removeProductcart: (Product: CartProduct) => void;
-  addProductToCart: (product: CartProduct, quantity: number) => void;
+  removeProductcart: (product: CartProduct) => void;
+  addProductToCart: ({ product }: { product: CartProduct }) => void;
   descreaseQuantity: (productId: string) => void;
   increaseQuantity: (productId: string) => void;
   clearCart: () => void;
@@ -108,40 +108,31 @@ export const CartProductProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
   };
-
-  //* FUNÇÃO DE ADD AO CARRINHO
-  const addProductToCart = (product: CartProduct, quantity: number) => {
-    //VERIFICAR SE HÁ ALGUM PRODUTO DE OUTRO RESTAURANT NO CARRINHO
-    const hasDifferentRestaurantProduct = products.some(
-      (cartProduct) => cartProduct.restaurantId !== product.restaurantId,
-    );
-    if (hasDifferentRestaurantProduct) {
-      return setProducts([
-        {
-          ...product,
-          quantity: quantity,
-        },
-      ]);
-      return;
-    }
-    //VERIFICAR SE O PRODUTO JÁ ESTÁ NO CARRINHO
-    const isProductAlreadyOnCarts = products.some(
-      (cartProducts) => cartProducts.id === product.id,
+  //* FUNÇÃO DE ADICIONAR AO CARRINHO
+  const addProductToCart: ICartContext["addProductToCart"] = ({ product }) => {
+    // VERIFICAR SE O PRODUTO JÁ ESTÁ NO CARRINHO
+    const isProductAlreadyOnCart = products.some(
+      (cartProduct) => cartProduct.id === product.id,
     );
 
     // SE ELE ESTIVER, AUMENTAR A SUA QUANTIDADE
-    if (isProductAlreadyOnCarts) {
-      const updatedProducts = products.map((cartProduct) =>
-        cartProduct.id === product.id
-          ? { ...cartProduct, quantity: cartProduct.quantity + quantity }
-          : cartProduct,
+    if (isProductAlreadyOnCart) {
+      return setProducts((prev) =>
+        prev.map((cartProduct) => {
+          if (cartProduct.id === product.id) {
+            return {
+              ...cartProduct,
+              quantity: cartProduct.quantity + product.quantity,
+            };
+          }
+
+          return cartProduct;
+        }),
       );
-      setProducts(updatedProducts);
-      return;
     }
+
     // SE NÃO, ADICIONÁ-LO COM A QUANTIDADE RECEBIDA
-    const updatedProducts = [...products, { ...product, quantity: quantity }];
-    setProducts(updatedProducts);
+    setProducts((prev) => [...prev, product]);
   };
 
   //* FUNÇÃO DE REMOVE AO CARRINHO
