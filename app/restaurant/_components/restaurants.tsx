@@ -2,8 +2,6 @@
 import { Restaurant } from "@prisma/client";
 import { notFound, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
-import Image from "next/image";
 import { searchForRestaurants } from "../_actions/search";
 import Header from "@/app/_components/header";
 import RestaurantItem from "@/app/_components/restaurant-item";
@@ -19,9 +17,10 @@ const Restaurants = () => {
       const foundRestaurant = await searchForRestaurants(searchFor);
 
       setRestaurant(foundRestaurant);
+      console.log(restaurants);
     };
     fetchRestaurants();
-  }, [searchParams]);
+  }, [searchFor]);
 
   if (!searchFor) {
     return notFound();
@@ -38,20 +37,9 @@ const Restaurants = () => {
       )}
 
       {restaurants.length === 0 && (
-        <>
-          <div className="mt-20 flex flex-col items-center justify-center">
-            <div className=" relative h-[300px] w-full">
-              <Image
-                src="/notSearch.png"
-                alt="não encontrado"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <p className="text-xl text-muted-foreground">Não encontrado!</p>
-          </div>
-        </>
+        <h2 className="mt-3 text-lg font-semibold ">Não encontrado!</h2>
       )}
+
       {restaurants.map((restaurant) => (
         <div key={restaurant.id} className="mt-3">
           <RestaurantItem restaurant={restaurant} />

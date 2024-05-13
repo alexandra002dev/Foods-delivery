@@ -1,12 +1,7 @@
 "use client";
 import Cart from "@/app/_components/cart";
 import { Button } from "@/app/_components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/app/_components/ui/sheet";
+import { Sheet, SheetContent } from "@/app/_components/ui/sheet";
 import { CartProductContext } from "@/app/_context/cart";
 import { formatCurrency } from "@/app/_helpers/price";
 import { Restaurant } from "@prisma/client";
@@ -46,10 +41,6 @@ const CartBanner = ({ restaurant }: CartBannerProps) => {
 
         <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
           <SheetContent className="w-[90vw]">
-            <SheetHeader>
-              <SheetTitle className="text-left">Sacola</SheetTitle>
-            </SheetHeader>
-
             <Cart setIsCartOpen={setIsCartOpen} />
           </SheetContent>
         </Sheet>

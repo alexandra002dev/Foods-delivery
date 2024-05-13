@@ -6,7 +6,7 @@ import { formatCurrency } from "../_helpers/price";
 import { Button } from "./ui/button";
 import { createOrder } from "../_actions/order";
 import { OrderStatus } from "@prisma/client";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
@@ -23,48 +23,58 @@ interface CartProps {
 const Cart = ({ setIsCartOpen }: CartProps) => {
   const router = useRouter();
   const [isDialog, setIsDialog] = useState(false);
+  const [isDialogLogin, setIsDialogLogin] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const { data } = useSession();
 
   const { products, subtotalPrice, totalPrice, totalDiscount, clearCart } =
     useContext(CartProductContext);
+
   const handleFinishOrderClick = async () => {
-    if (!data?.user) return;
-    setIsSubmitLoading(true);
-    await createOrder({
-      subtotalPrice,
-      totalDiscounts: totalDiscount,
-      totalPrice,
-      deliveryFree: products[0].restaurant.deliveryFee,
-      DeliveryTime: products[0].restaurant.deliveryTimeMinutes,
-      restaurant: {
-        connect: { id: products[0].restaurant.id },
-      },
-      status: OrderStatus.CONFIRMED,
-      user: {
-        connect: {
-          email: data?.user?.email || "",
+    if (!data?.user) {
+      setIsDialogLogin(true);
+      return;
+    }
+    try {
+      await createOrder({
+        subtotalPrice,
+        totalDiscounts: totalDiscount,
+        totalPrice,
+        deliveryFree: products[0].restaurant.deliveryFee,
+        DeliveryTime: products[0].restaurant.deliveryTimeMinutes,
+        restaurant: {
+          connect: { id: products[0].restaurant.id },
         },
-      },
-      products: {
-        createMany: {
-          data: products.map((product) => ({
-            productId: product.id,
-            quantity: product.quantity,
-          })),
+        status: OrderStatus.CONFIRMED,
+        user: {
+          connect: {
+            email: data?.user?.email || "",
+          },
         },
-      },
-    });
-    toast("Pedido finalizado com sucesso!", {
-      description: "Você pode acompanhá-lo na tela dos seus pedidos.",
-      action: {
-        label: "Meus Pedidos",
-        onClick: () => router.push("/my-orders"),
-      },
-    });
-    setIsDialog(false);
-    clearCart();
-    setIsCartOpen(false);
+        products: {
+          createMany: {
+            data: products.map((product) => ({
+              productId: product.id,
+              quantity: product.quantity,
+            })),
+          },
+        },
+      });
+      toast("Pedido finalizado com sucesso!", {
+        description: "Você pode acompanhá-lo na tela dos seus pedidos.",
+        action: {
+          label: "Meus Pedidos",
+          onClick: () => router.push("/my-orders"),
+        },
+      });
+
+      clearCart();
+      setIsCartOpen(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitLoading(true);
+    }
   };
 
   return (
@@ -77,7 +87,7 @@ const Cart = ({ setIsCartOpen }: CartProps) => {
               <CartItem productCart={product} key={product.id} />
             ))}
           </div>
-          <div>
+          <div className="mb-5">
             <Card>
               <CardContent>
                 {/* SUBTOTAL */}
@@ -131,7 +141,7 @@ const Cart = ({ setIsCartOpen }: CartProps) => {
           </span>
         </div>
       )}
-      <Dialog open={isDialog}>
+      <Dialog open={isDialog} onOpenChange={setIsDialog}>
         <DialogContent className="h-72 w-60 ">
           <DialogHeader className="flex items-center  justify-center text-center">
             <DialogTitle>
@@ -148,6 +158,19 @@ const Cart = ({ setIsCartOpen }: CartProps) => {
             )}
             Confirmar
           </Button>
+        </DialogContent>
+      </Dialog>
+
+      {/* DIALOGO PARA FAZER LOGIN */}
+      <Dialog open={isDialogLogin} onOpenChange={setIsDialogLogin}>
+        <DialogContent className="h-72 w-60 ">
+          <DialogHeader className="flex items-center  justify-center text-center">
+            <h2 className="text-lg font-semibold">Faça login na plataforma!</h2>
+            <DialogDescription>
+              Conecte-se usando sua conta do Google.
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={() => signIn()}>Google</Button>
         </DialogContent>
       </Dialog>
     </>
