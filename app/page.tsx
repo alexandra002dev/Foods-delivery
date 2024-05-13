@@ -55,7 +55,7 @@ const Home = async () => {
           src="/promo-banner-02.png"
         />
       </div>
-      <div className="space-y-4 pt-6">
+      <div className="space-y-4 pb-3 pt-6">
         <div className="flex items-center justify-between px-5">
           <h2 className="font-semibold">Restaurantes Recomendados</h2>
           <Link href={"/restaurant/recommended"}>
