@@ -16,13 +16,7 @@ const MyOrdersPage = async () => {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       }),
     ],
-    // callbacks: {
-    //   async session({ session, user }) {
-    //     session.user = { ...session, id: user.id };
-    //     console.log(session.user.email);
-    //     return session;
-    //   },
-    // },
+    secret: process.env.NEXTAUTH_SECRET,
   });
   if (!session?.user) {
     return redirect("/");
